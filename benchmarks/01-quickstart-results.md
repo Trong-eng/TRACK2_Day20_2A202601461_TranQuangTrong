@@ -18,6 +18,6 @@ Completed requests: `UD-Q4_K_XL` 10/10 · `UD-Q2_K_XL` 10/10
 
 Trên Apple M3, UD-Q2_K_XL nhỏ hơn 0,73 GB (24,6%) và decode nhanh hơn 1,18x so với
 UD-Q4_K_XL (50,7 so với 43,0 tok/s); load model cũng nhanh hơn khoảng 1,35x.
-TTFT P50 gần như tương đương, còn TPOT tốt hơn rõ rệt. Vì vậy Q2 đáng dùng nếu ưu
-tiên tốc độ và dung lượng; cần đối chiếu cùng một câu hỏi trên cả hai quantization
-trước khi kết luận cuối về chất lượng trả lời.
+TTFT P50 gần như tương đương, còn TPOT tốt hơn rõ rệt. Với cùng câu hỏi về continuous
+batching, cả hai trả lời đúng; Q4 diễn đạt cụ thể hơn, Q2 khái quát hơn. Vì vậy Q2
+đáng dùng khi ưu tiên tốc độ/dung lượng và chấp nhận giảm độ chi tiết nhẹ.

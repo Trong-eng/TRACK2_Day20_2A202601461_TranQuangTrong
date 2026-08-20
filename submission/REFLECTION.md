@@ -52,8 +52,9 @@ hỏi cùng một câu trên cả hai (`make serve` vs `.venv/bin/python labs/02
 chưa? Chất lượng khác nhau thế nào?
 
 UD-Q2_K_XL nhỏ hơn 0,73 GB và decode nhanh hơn 1,18x; load model cũng nhanh hơn.
-TTFT P50 gần như tương đương, TPOT thấp hơn rõ rệt. Vì vậy Q2 có lợi cho tốc độ và
-dung lượng; chất lượng trả lời cần được kiểm tra bằng cùng một câu hỏi trên cả hai bản.
+TTFT P50 gần như tương đương, TPOT thấp hơn rõ rệt. Tôi đã hỏi cùng câu về continuous
+batching: cả hai trả lời đúng, Q4 cụ thể hơn còn Q2 khái quát hơn. Vì vậy Q2 đáng dùng
+khi ưu tiên tốc độ/dung lượng và chấp nhận giảm độ chi tiết nhẹ.
 
 ---
 
@@ -144,7 +145,7 @@ speedup thực tế 1,06x.
 > Bỏ trống nếu không làm. Xem `bonus/README.md`. Đừng làm hết — **một** finding sâu
 > ăn điểm hơn năm bảng nông.
 
-**Đã làm:** _B1 build-compare và B2 GPU offload sweep_
+**Đã làm:** _B1 build-compare, B2 GPU offload sweep, B4/C7 native ON vs OFF và B5/C9 embedding serving_
 
 **Numbers:**
 
@@ -158,6 +159,18 @@ B2 GPU offload:
 before: 34.9 tok/s (`-ngl 0`)
 after: 43.4 tok/s (`-ngl 99`)
 speedup: 1.24×
+
+B4/C7 native instruction-set comparison:
+
+before: 27.18 ± 13.90 tok/s (`GGML_NATIVE=OFF`)
+after: 30.58 ± 6.77 tok/s (`GGML_NATIVE=ON`)
+speedup: 1.13× (directional; high variance)
+
+B5/C9 embedding serving:
+
+batch 1: 10.5 texts/s
+batch 4: 26.0 texts/s
+speedup: 2.48×
 ```
 
 **Điều này nói lên gì mà deck chưa nói:**
@@ -165,8 +178,10 @@ speedup: 1.24×
 Source build nhanh hơn vì compiler được phép tối ưu cụ thể cho Apple M3/NEON thay vì
 runtime dispatch tổng quát. B2 cho thấy full Metal offload đạt 43,4 tok/s, nhưng
 partial offload không đều vì chi phí phối hợp CPU/GPU và chuyển dữ liệu; không có dấu
-hiệu thiếu VRAM. Hai speedup này là hai thay đổi riêng: compiler optimization và
-accelerator offload.
+hiệu thiếu VRAM. C7 cũng cho thấy native ON nhanh hơn trong lượt lặp lại, nhưng độ lệch
+chuẩn lớn nên chỉ nên xem là lợi thế có hướng, không phải speedup ổn định 1,13×. C9 cho
+thấy embedding đạt đỉnh ở batch 4 (26,0 texts/s); batch lớn hơn làm tăng memory
+pressure và giảm throughput, khác với chat serving vì embedding là prefill-bound.
 
 ---
 
@@ -180,21 +195,21 @@ _(để trống nếu bạn không làm phần này)_
 
 ## 8. Self-check trước khi push
 
-- [ ] `hardware.json` committed
-- [ ] `models/active.json` committed
-- [ ] `benchmarks/01-quickstart-results.md` committed (`make bench`)
-- [ ] `benchmarks/01-tuning-tg128.md` committed (`make tune`)
-- [ ] `benchmarks/02-server-results.md` committed (`make load-report`)
-- [ ] `benchmarks/02-server-batching-u50.md` hoặc `-metrics-u50.csv` committed (`make metrics`)
-- [ ] `benchmarks/locust-10_stats.csv` + `locust-50_stats.csv` committed (`make load-10` / `load-50`)
-- [ ] `benchmarks/03-integration-results.md` committed (`make pipeline`)
-- [ ] Mọi section **"required — replace this line"** trong các file `benchmarks/*.md`
+- [x] `hardware.json` committed
+- [x] `models/active.json` committed
+- [x] `benchmarks/01-quickstart-results.md` committed (`make bench`)
+- [x] `benchmarks/01-tuning-tg128.md` committed (`make tune`)
+- [x] `benchmarks/02-server-results.md` committed (`make load-report`)
+- [x] `benchmarks/02-server-batching-u50.md` hoặc `-metrics-u50.csv` committed (`make metrics`)
+- [x] `benchmarks/locust-10_stats.csv` + `locust-50_stats.csv` committed (`make load-10` / `load-50`)
+- [x] `benchmarks/03-integration-results.md` committed (`make pipeline`)
+- [x] Mọi section **"required — replace this line"** trong các file `benchmarks/*.md`
       đã được thay bằng nhận xét của bạn
-- [ ] 5 screenshots trong `submission/screenshots/`
-- [ ] `make verify` → **exit 0**
-- [ ] Repo GitHub ở chế độ **public**
+- [x] 5 screenshots trong `submission/screenshots/`
+- [x] `make verify` → **exit 0**
+- [x] Repo GitHub ở chế độ **public**
 - [ ] Đã paste public URL vào VinUni LMS
-- [ ] **Không** commit `models/*.gguf` hay `runtime/` (đã có trong `.gitignore`)
+- [x] **Không** commit `models/*.gguf` hay `runtime/` (đã có trong `.gitignore`)
 
 **Quan trọng:** repo phải **public** đến khi điểm được công bố. Private → grader không
 xem được → 0 điểm.
