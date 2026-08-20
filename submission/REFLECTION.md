@@ -144,7 +144,7 @@ speedup thực tế 1,06x.
 > Bỏ trống nếu không làm. Xem `bonus/README.md`. Đừng làm hết — **một** finding sâu
 > ăn điểm hơn năm bảng nông.
 
-**Đã làm:** _B1 build-compare_
+**Đã làm:** _B1 build-compare và B2 GPU offload sweep_
 
 **Numbers:**
 
@@ -152,14 +152,21 @@ speedup thực tế 1,06x.
 before:  21.0 tok/s (prebuilt, `ngl=0`)
 after:   24.9 tok/s (source build, `-DGGML_NATIVE=ON`, `ngl=0`)
 speedup: 1.19×
+
+B2 GPU offload:
+
+before: 34.9 tok/s (`-ngl 0`)
+after: 43.4 tok/s (`-ngl 99`)
+speedup: 1.24×
 ```
 
 **Điều này nói lên gì mà deck chưa nói:**
 
 Source build nhanh hơn vì compiler được phép tối ưu cụ thể cho Apple M3/NEON thay vì
-runtime dispatch tổng quát. Mức tăng 1,19× vừa phải cho thấy decode vẫn bị giới hạn
-bởi memory bandwidth; GPU offload 35,8 tok/s là một thay đổi riêng, không phải kết quả
-B1.
+runtime dispatch tổng quát. B2 cho thấy full Metal offload đạt 43,4 tok/s, nhưng
+partial offload không đều vì chi phí phối hợp CPU/GPU và chuyển dữ liệu; không có dấu
+hiệu thiếu VRAM. Hai speedup này là hai thay đổi riêng: compiler optimization và
+accelerator offload.
 
 ---
 
