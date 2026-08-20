@@ -144,19 +144,22 @@ speedup thực tế 1,06x.
 > Bỏ trống nếu không làm. Xem `bonus/README.md`. Đừng làm hết — **một** finding sâu
 > ăn điểm hơn năm bảng nông.
 
-**Đã làm:** _<B1 build-compare / B2 sweep nào / B4 challenge nào / B5 lựa chọn nào>_
+**Đã làm:** _B1 build-compare_
 
 **Numbers:**
 
 ```
-before:  <số>
-after:   <số>
-speedup: <X.Y>×
+before:  21.0 tok/s (prebuilt, `ngl=0`)
+after:   24.9 tok/s (source build, `-DGGML_NATIVE=ON`, `ngl=0`)
+speedup: 1.19×
 ```
 
 **Điều này nói lên gì mà deck chưa nói:**
 
-_(để trống nếu bạn không làm phần này)_
+Source build nhanh hơn vì compiler được phép tối ưu cụ thể cho Apple M3/NEON thay vì
+runtime dispatch tổng quát. Mức tăng 1,19× vừa phải cho thấy decode vẫn bị giới hạn
+bởi memory bandwidth; GPU offload 35,8 tok/s là một thay đổi riêng, không phải kết quả
+B1.
 
 ---
 
